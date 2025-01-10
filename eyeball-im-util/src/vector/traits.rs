@@ -12,7 +12,7 @@ use super::{
     ops::{
         VecVectorDiffFamily, VectorDiffContainerFamily, VectorDiffContainerOps, VectorDiffFamily,
     },
-    EmptyLimitStream, Filter, FilterMap, Limit, Sort, SortBy, SortByKey,
+    EmptyLimitStream, Filter, FilterMap, Limit, RLimit, Sort, SortBy, SortByKey,
 };
 
 /// Abstraction over stream items that the adapters in this module can deal
@@ -158,6 +158,43 @@ where
     {
         let (items, stream) = self.into_parts();
         Limit::dynamic_with_initial_limit(items, stream, initial_limit, limit_stream)
+    }
+
+    /// Limit from the back the observed values to `limit`.
+    ///
+    /// See [`RLimit`] for more details.
+    fn rlimit(self, limit: usize) -> (Vector<T>, RLimit<Self::Stream, EmptyLimitStream>) {
+        let (items, stream) = self.into_parts();
+        RLimit::new(items, stream, limit)
+    }
+
+    /// Limit from the back the observed values to a number of items determined
+    /// by the given stream.
+    ///
+    /// See [`RLimit`] for more details.
+    fn dynamic_rlimit<L>(self, limit_stream: L) -> RLimit<Self::Stream, L>
+    where
+        L: Stream<Item = usize>,
+    {
+        let (items, stream) = self.into_parts();
+        RLimit::dynamic(items, stream, limit_stream)
+    }
+
+    /// Limit from the back the observed values to `initial_limit` items
+    /// initially, and update the limit with the value from the given
+    /// stream.
+    ///
+    /// See [`RLimit`] for more details.
+    fn dynamic_rlimit_with_initial_value<L>(
+        self,
+        initial_limit: usize,
+        limit_stream: L,
+    ) -> (Vector<T>, RLimit<Self::Stream, L>)
+    where
+        L: Stream<Item = usize>,
+    {
+        let (items, stream) = self.into_parts();
+        RLimit::dynamic_with_initial_limit(items, stream, initial_limit, limit_stream)
     }
 
     /// Sort the observed values.
