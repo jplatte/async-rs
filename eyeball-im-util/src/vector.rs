@@ -3,6 +3,7 @@
 mod filter;
 mod limit;
 mod ops;
+mod rlimit;
 mod sort;
 mod traits;
 
@@ -13,6 +14,7 @@ use self::ops::{VectorDiffContainerFamilyMember, VectorDiffContainerOps};
 pub use self::{
     filter::{Filter, FilterMap},
     limit::{EmptyLimitStream, Limit},
+    rlimit::RLimit,
     sort::{Sort, SortBy, SortByKey},
     traits::{
         BatchedVectorSubscriber, VectorDiffContainer, VectorObserver, VectorObserverExt,
@@ -44,6 +46,11 @@ type VectorDiffContainerDiff<S> = VectorDiff<VectorDiffContainerStreamElement<S>
 /// [`VectorDiffContainer`]s' `LimitBuf`.
 type VectorDiffContainerStreamLimitBuf<S> =
     <<S as Stream>::Item as VectorDiffContainerOps<VectorDiffContainerStreamElement<S>>>::LimitBuf;
+
+/// Type alias for extracting the buffer type from a stream of
+/// [`VectorDiffContainer`]s' `RLimitBuf`.
+type VectorDiffContainerStreamRLimitBuf<S> =
+    <<S as Stream>::Item as VectorDiffContainerOps<VectorDiffContainerStreamElement<S>>>::RLimitBuf;
 
 /// Type alias for extracting the buffer type from a stream of
 /// [`VectorDiffContainer`]s' `SortBuf`.
